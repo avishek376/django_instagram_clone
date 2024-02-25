@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Working Fine</title>
+</head>
+<body>
+<h1>
+    Hello World...I'm in the users template
+    <p>
+        User's count:{{ users_count }}
+
+    </p>
+    <h4>
+        Users Details:
+    </h4>
+    <p>
+        {% for user in users_details%}
+        <br>
+        {{ user.username }} | {{user.phone}} | {{user.email}}<br>
+        <span>created at:</span>
+
+        {{ user.created_at}}<br>
+
+        {%endfor%}
+    </p>
+
+</h1>
+</body>
+</html>
