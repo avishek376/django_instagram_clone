@@ -1,0 +1,25 @@
+main{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.sign-up-box{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: white;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    padding: 20px;
+    top: 10%;
+    position: absolute;
+}
+.error-message{
+  color: red;
+  font-family: 'Roboto', sans-serif;
+
+}
+.success-message{
+  color: green;
+  font-family: 'Roboto', sans-serif;
+
+}
