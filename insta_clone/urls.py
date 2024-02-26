@@ -20,4 +20,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('users.urls')),
 
+    path('user/', include('api.urls')),  # for users sign-up, sign-in, update and delete
 ]

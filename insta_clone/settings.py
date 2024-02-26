@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta  # for JWT Token settings
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,7 +41,7 @@ INSTALLED_APPS = [
 
 EXTERNAL_APPS = [
     'users',
-
+    'api',
 ]
 
 INSTALLED_APPS += EXTERNAL_APPS
@@ -56,6 +57,14 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'insta_clone.urls'
+
+# Setting up the JWT token settings for authentication
+if DEBUG:
+    SIMPLE_JWT = {
+        "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+        "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+
+    }
 
 TEMPLATES = [
     {
@@ -120,6 +129,11 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 STATIC_ROOT = BASE_DIR / 'product_static_assets/'
+
+STATIC_URL = 'static/'
+
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = ''
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

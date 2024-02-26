@@ -18,12 +18,10 @@ class Users(models.Model):
 
 class UserProfile(models.Model):
     # id =models.AutoField(primary_key=True)
-    # TODO:: Add verification for size and type of image that is uploaded
-    # TODO:: Modify the naming of the saved image...so that the update view becomes idempotent or compliant with REST
 
     DEFAULT_PROFILE_PICTURE_URL = 'https://placehold.jp/3d4070/ffffff/150x150.png'
     user = models.ForeignKey(Users, on_delete=models.CASCADE, null=False)
-    profile_picture_url = models.CharField(max_length=255, default=DEFAULT_PROFILE_PICTURE_URL)
+    profile_picture = models.CharField(max_length=255, default=DEFAULT_PROFILE_PICTURE_URL)
 
     bio = models.CharField(max_length=25, blank=True)
     is_verified = models.BooleanField(default=False)
