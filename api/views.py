@@ -1,14 +1,16 @@
 from django.shortcuts import render
-from .models import UserProfile
+from .models import UserProfile, NetworkEdge
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from .serializers import UserCreateSerializer, UserProfileViewSerializer, UserProfileUpdateSerializer
+from .serializers import UserCreateSerializer, UserProfileViewSerializer, UserProfileUpdateSerializer, \
+    NetworkEdgeCreationSerializer, NetworkEdgeFollowersViewSerializer, NetworkEdgeFollowingViewSerializer
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 
 from rest_framework.views import APIView
+from rest_framework import generics, mixins
 
 
 # Create your views here.
@@ -102,9 +104,9 @@ class APIViewUserServices(APIView):
 
     # TODO:: Refactoring the user_detail by ID function by using APIView class
     def get(self, request, pk=None):
-        print("line no:", 117)
+
         user = UserProfile.objects.filter(id=pk).first()
-        # print("User ==> ", user)
+
         response_data = {
             "data": None,
             "errors": None,
@@ -137,16 +139,79 @@ class APIViewUserServices(APIView):
             response_status = status.HTTP_400_BAD_REQUEST
         return Response(response_data, status=response_status)
 
+    # Delete User profile endpoint with APIView
+    def delete(self, request):
+        print("invoked delete")
+        user = request.user
+        user.delete()
+        response_data = {
+            "message": "User deleted successfully",
+            "errors": None,
+        }
+        return Response(response_data, status=status.HTTP_200_OK)
+
 
 class APIViewUserListService(APIView):
     serializer_class = UserProfileViewSerializer
-    permission_classes = ['IsAuthenticated']
-    authentication_classes = ['JWTAuthentication']
+    permission_classes = [IsAuthenticated, ]
+    authentication_classes = [JWTAuthentication, ]
 
     def get(self, request):
         users = UserProfile.objects.all()
         serialized_data = UserProfileViewSerializer(instance=users, many=True)
-        print("line no: ", 149)
         return Response(serialized_data.data, status=status.HTTP_200_OK)
 
-# TODO:: Refactoring the user_list function by using Mixins
+
+# TODO:: Refactoring the api function by using Mixins
+
+
+class UserNetworkEdgeView(mixins.CreateModelMixin,
+                          mixins.DestroyModelMixin,
+                          mixins.ListModelMixin,
+                          generics.GenericAPIView):
+    queryset = NetworkEdge.objects.all()
+    permission_classes = [IsAuthenticated, ]
+    authentication_classes = [JWTAuthentication, ]
+    serializer_class = NetworkEdgeCreationSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            # TODO:: Change the serializer based on the followers and following
+            if self.request.query_params['direction'] == "following":
+                return NetworkEdgeFollowingViewSerializer
+            elif self.request.query_params['direction'] == "followers":
+                return NetworkEdgeFollowersViewSerializer
+
+    def get_queryset(self):
+        request_params = self.request.query_params['direction']
+        if request_params == "following":
+            # NetworkEdge.objects.all().filter(from_user=self.request.user.profile.id)
+            return self.queryset.filter(from_user=self.request.user.profile.id)
+        elif request_params == "followers":
+            return self.queryset.filter(to_user=self.request.user.profile.id)
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        """follow a user"""
+        request.data["from_user"] = request.user.profile.id
+        return self.create(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        """unfollow a user"""
+
+        # return self.destroy(request, *args, **kwargs)
+        # or
+
+        network_edge = NetworkEdge.objects.filter(from_user=request.user.profile.id,
+                                                  to_user=request.data["to_user"]).first()
+        if network_edge.exists():
+            message = "User unfollowed"
+        else:
+            message = "User not found"
+
+        return Response({'data': None, 'message': message, 'errors': None}, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        pass

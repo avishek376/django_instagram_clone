@@ -25,3 +25,20 @@ class UserProfile(TimeStamp):
 
     def __str__(self):
         return self.user.username
+
+
+# following and follwers model
+# Network Edge
+# A---->B [A is following B]
+# B---->A [B is following A]
+# B---->C [B is following C]
+# A has 1 follower and 1 following
+# B has 1 followers and 2 following
+# C has 1 followers and 0 following
+
+class NetworkEdge(TimeStamp):
+    from_user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='following')
+    to_user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='followers')
+
+    class Meta:
+        unique_together = ['from_user', 'to_user']

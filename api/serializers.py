@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
-from .models import UserProfile
+from .models import UserProfile, NetworkEdge
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -17,11 +17,27 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
 
 class UserProfileViewSerializer(serializers.ModelSerializer):
-    user = UserCreateSerializer()
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name", "username"]
+
+
+class UserProfileViewSerializer(serializers.ModelSerializer):
+    # user = UserCreateSerializer()
+    user = UserProfileViewSerializer()
+
+    followers_count = serializers.SerializerMethodField()
+    following_count = serializers.SerializerMethodField()
 
     class Meta:
         model = UserProfile
         exclude = ["id", "is_verified"]
+
+    def get_followers_count(self, obj):
+        return obj.followers.count()
+
+    def get_following_count(self, obj):
+        return obj.following.count()
 
 
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
@@ -42,3 +58,26 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ["first_name", "last_name", "bio", "profile_picture"]
+
+
+# Edge Serializers
+class NetworkEdgeCreationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NetworkEdge
+        fields = ["from_user", "to_user"]
+
+
+class NetworkEdgeFollowersViewSerializer(serializers.ModelSerializer):
+    from_user = UserProfileViewSerializer()
+
+    class Meta:
+        model = NetworkEdge
+        fields = ["from_user"]
+
+
+class NetworkEdgeFollowingViewSerializer(serializers.ModelSerializer):
+    to_user = UserProfileViewSerializer()
+
+    class Meta:
+        model = NetworkEdge
+        fields = ["to_user"]

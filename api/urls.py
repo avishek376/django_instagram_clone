@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from rest_framework.urlpatterns import format_suffix_patterns
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -21,5 +22,10 @@ urlpatterns = [
     # Refactoring URL's after using APIView class
     path('api_view_services/<int:pk>/', views.APIViewUserServices.as_view(), name='user_detail_api_api_view'),
     path('api_view_services/', views.APIViewUserServices.as_view(), name='update_user_profile_api_api_view'),
+    path('delete/', views.APIViewUserServices.as_view(), name='delete_user_profile_api_api_view'),
+    path('list/', views.APIViewUserListService.as_view(), name='user_list_api_api_view'),
 
+    path('edge/', views.UserNetworkEdgeView.as_view(), name='follow_user_api'),
+    path('edge/<int:pk>/', views.UserNetworkEdgeView.as_view(), name='unfollow_user_api'),
 ]
+# urlpatterns = format_suffix_patterns(urlpatterns)
