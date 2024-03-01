@@ -32,7 +32,7 @@ class UserProfileViewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        exclude = ["id", "is_verified"]
+        exclude = ["is_verified", ]
 
     def get_followers_count(self, obj):
         return obj.followers.count()

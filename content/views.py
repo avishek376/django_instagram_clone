@@ -2,10 +2,11 @@ from django.shortcuts import render
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from .serializers import UserPostCreateSerializer, PostMediaCreateSerializer
+from .serializers import UserPostCreateSerializer, PostMediaCreateSerializer, PostFeedSerializer
 from rest_framework import generics
 from .models import UserPost, PostMedia
 from rest_framework import mixins
+from .filters import CurrentUserFollowingFilterBackend
 
 
 # Create your views here.
@@ -15,11 +16,21 @@ from rest_framework import mixins
 #  update the post & publish
 
 class UserPostCreateFeed(generics.GenericAPIView,
+                         mixins.ListModelMixin,
                          mixins.CreateModelMixin):
     queryset = UserPost.objects.all()
     permission_classes = [IsAuthenticated, ]
     authentication_classes = [JWTAuthentication, ]
     serializer_class = UserPostCreateSerializer
+    filter_backends = [CurrentUserFollowingFilterBackend, ]
+
+    # TODO:: Create a system to follow topics or hashtags
+    # TODO: Create a way of ordering the feed based on post popularity
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return PostFeedSerializer
+        return self.serializer_class
 
     def get_serializer_context(self):
         return {'current_user': self.request.user.profile}
@@ -44,11 +55,20 @@ class PostMediaView(generics.GenericAPIView,
 
 
 class UserPostDetailsUpdateView(generics.GenericAPIView,
+                                mixins.RetrieveModelMixin,
                                 mixins.UpdateModelMixin):
     permission_classes = [IsAuthenticated, ]
     authentication_classes = [JWTAuthentication, ]
     serializer_class = UserPostCreateSerializer
     queryset = UserPost.objects.all()
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return PostFeedSerializer
+        return self.serializer_class
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
