@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 EXTERNAL_APPS = [
     'users',
     'api',
+    'content',
 ]
 
 INSTALLED_APPS += EXTERNAL_APPS
@@ -127,10 +128,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
-
 STATIC_ROOT = BASE_DIR / 'product_static_assets/'
-
-STATIC_URL = 'static/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = ''
