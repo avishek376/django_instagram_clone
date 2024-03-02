@@ -1,5 +1,6 @@
 from django.urls import path, include
 from . import views
+from rest_framework.routers import DefaultRouter
 
 # create a post/Update a post
 # upload media
@@ -12,10 +13,14 @@ from . import views
 
 #
 
+router = DefaultRouter()
+router.register('like', views.PostLikeViewSet, basename='post_like')
+
 urlpatterns = [
 
     path('', views.UserPostCreateFeed.as_view(), name='user_post_view'),
     path('media/', views.PostMediaView.as_view(), name='post_media_view'),
-    path('<int:pk>/', views.UserPostDetailsUpdateView.as_view(), name='post_details_update')
+    path('<int:pk>/', views.UserPostDetailsUpdateView.as_view(), name='post_details_update'),
 
+    path('', include(router.urls))
 ]

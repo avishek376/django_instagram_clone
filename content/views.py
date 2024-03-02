@@ -2,11 +2,12 @@ from django.shortcuts import render
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from .serializers import UserPostCreateSerializer, PostMediaCreateSerializer, PostFeedSerializer
+from .serializers import UserPostCreateSerializer, PostMediaCreateSerializer, PostFeedSerializer, PostLikeSerializer
 from rest_framework import generics
-from .models import UserPost, PostMedia
+from .models import UserPost, PostMedia, PostLikes, PostComments
 from rest_framework import mixins
 from .filters import CurrentUserFollowingFilterBackend
+from rest_framework import viewsets
 
 
 # Create your views here.
@@ -72,3 +73,10 @@ class UserPostDetailsUpdateView(generics.GenericAPIView,
 
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
+
+
+class PostLikeViewSet(viewsets.ViewSet):
+    queryset = PostLikes.objects.all()
+    serializer_class = PostLikeSerializer
+    permission_classes = [IsAuthenticated, ]
+    authentication_classes = [JWTAuthentication, ]

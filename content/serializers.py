@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer
-from .models import UserPost, PostMedia
+from .models import UserPost, PostMedia, PostLikes, PostComments
 from api.serializers import UserProfileViewSerializer
 
 
@@ -36,3 +36,8 @@ class PostFeedSerializer(ModelSerializer):
         model = UserPost
         fields = '__all__'
         include = ('media',)
+
+
+class PostLikeSerializer(ModelSerializer):
+    class Meta:
+        model = PostLikes
