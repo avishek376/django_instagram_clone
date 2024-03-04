@@ -2,12 +2,17 @@ from django.shortcuts import render
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from .serializers import UserPostCreateSerializer, PostMediaCreateSerializer, PostFeedSerializer, PostLikeSerializer
+from .serializers import UserPostCreateSerializer, PostMediaCreateSerializer, \
+    PostFeedSerializer, \
+    PostLikeSerializer, \
+    PostCommentSerializer
 from rest_framework import generics
 from .models import UserPost, PostMedia, PostLikes, PostComments
 from rest_framework import mixins
 from .filters import CurrentUserFollowingFilterBackend
 from rest_framework import viewsets
+
+from rest_framework.response import Response
 
 
 # Create your views here.
@@ -75,8 +80,57 @@ class UserPostDetailsUpdateView(generics.GenericAPIView,
         return self.update(request, *args, **kwargs)
 
 
-class PostLikeViewSet(viewsets.ViewSet):
+# DETAILS:: If we implement
+#  1)ViewSet...urls get configured automatically but
+#  the methods needs to implemented for HTTP verbs to work
+#  2)GenericViewSet...add mixins,
+#  also has the methods like get_serializer_class, get_serializer_context
+#  3)ModelViewSet...urls + methods are already implemented
+
+class PostLikeViewSet(mixins.DestroyModelMixin,
+                      mixins.CreateModelMixin,
+                      viewsets.GenericViewSet):
     queryset = PostLikes.objects.all()
     serializer_class = PostLikeSerializer
     permission_classes = [IsAuthenticated, ]
     authentication_classes = [JWTAuthentication, ]
+
+    def get_serializer_context(self):
+        return {'current_user': self.request.user.profile}
+
+    def list(self, request):
+        post_likes = self.queryset.filter(post_id=request.query_params['post_id'])
+        page = self.paginate_queryset(post_likes)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(post_likes, many=True)
+
+        return Response(serializer.data)
+
+
+class PostCommentViewSet(mixins.ListModelMixin,
+                         mixins.DestroyModelMixin,
+                         mixins.CreateModelMixin,
+                         viewsets.GenericViewSet):
+    queryset = PostComments.objects.all()
+    serializer_class = PostCommentSerializer
+    permission_classes = [IsAuthenticated, ]
+    authentication_classes = [JWTAuthentication, ]
+
+    def get_serializer_context(self):
+        return {'current_user': self.request.user.profile}
+
+    def list(self, request):
+        # TODO:: Implement get_serializer_class
+        #  to have a proper representation for the user' profile
+        
+        post_comments = self.queryset.filter(post_id=request.query_params['post_id'])
+        page = self.paginate_queryset(post_comments)
+
+        if page:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(post_comments, many=True)
+        return Response(serializer.data)

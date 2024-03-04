@@ -39,5 +39,20 @@ class PostFeedSerializer(ModelSerializer):
 
 
 class PostLikeSerializer(ModelSerializer):
+    def create(self, validated_data):
+        validated_data['liked_by'] = self.context['current_user']
+        return PostLikes.objects.create(**validated_data)
+
     class Meta:
         model = PostLikes
+        fields = ('id', 'post')
+
+
+class PostCommentSerializer(ModelSerializer):
+    def create(self, validated_data):
+        validated_data['author'] = self.context['current_user']
+        return PostComments.objects.create(**validated_data)
+
+    class Meta:
+        model = PostComments
+        fields = ('id', 'post', 'text')

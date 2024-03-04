@@ -27,5 +27,5 @@ urlpatterns = [
     path('post/', include('content.urls')),  # for insta-post create,update and upload media to post
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# if settings.DEBUG:
+#     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
