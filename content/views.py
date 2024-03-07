@@ -13,6 +13,7 @@ from .filters import CurrentUserFollowingFilterBackend
 from rest_framework import viewsets
 
 from rest_framework.response import Response
+from .permissions import IsOwnerOrReadOnly
 
 
 # Create your views here.
@@ -115,7 +116,7 @@ class PostCommentViewSet(mixins.ListModelMixin,
                          viewsets.GenericViewSet):
     queryset = PostComments.objects.all()
     serializer_class = PostCommentSerializer
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly, ]
     authentication_classes = [JWTAuthentication, ]
 
     def get_serializer_context(self):
@@ -124,7 +125,7 @@ class PostCommentViewSet(mixins.ListModelMixin,
     def list(self, request):
         # TODO:: Implement get_serializer_class
         #  to have a proper representation for the user' profile
-        
+
         post_comments = self.queryset.filter(post_id=request.query_params['post_id'])
         page = self.paginate_queryset(post_comments)
 
