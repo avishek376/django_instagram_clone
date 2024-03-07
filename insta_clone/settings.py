@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta  # for JWT Token settings
+from celery.schedules import crontab  # for Celery Beat
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -43,9 +44,21 @@ EXTERNAL_APPS = [
     'users',
     'api',
     'content',
+    'django_celery_beat',
+    'django_celery_results',
 ]
 
 INSTALLED_APPS += EXTERNAL_APPS
+
+CELERY_RESULT_BACKEND = 'django-db'
+
+CELERY_BEAT_SCHEDULE = {
+    "sum_two_numbers_beat": {
+        "task": "sum_two_numbers",
+        "schedule": crontab(minute="*/1"),
+        "args": (2, 3)
+    }
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
