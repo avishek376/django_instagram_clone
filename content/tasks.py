@@ -6,3 +6,9 @@ from insta_clone.celery import app
 def add(x, y):
     print("On line 6")
     return x + y
+
+
+def process_media(instance):
+    print("Inside Process Media")
+    # print(instance)
+    return True
