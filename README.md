@@ -2,9 +2,9 @@
 
 **Insta-Clone**
 
-This project is an Instagram clone built using Django Rest Framework (DRF) and Python, with SQLite as the database
+_This project is an Instagram clone built using Django Rest Framework (DRF) and Python, with SQLite as the database
 backend. It incorporates JWT authentication for user management and features such as follow/unfollow functionality,
-liking/unliking posts, and commenting.
+liking/unliking posts, and commenting._
 
 **Features:**
 
